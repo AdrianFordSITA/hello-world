@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE xml>
+<project name="HelloWorld - Website" default="build">
+	
+	<property file="ant.properties"/>
+
+	<!-- ============================================================ -->
+	<!-- 					  Compile war tasks 					  -->
+	<!-- ============================================================ -->
+	
+	<path id="compile.classpath">
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<target name="init">
+		<mkdir dir="build/classes"/>
+		<mkdir dir="dist" />
+	</target>
+	
+	<target name="compile" depends="init" >
+		<javac destdir="build/classes" includeantruntime="false" debug="true" srcdir="src">
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="war" depends="compile" description="Build war file">
+		<war destfile="dist/${war.name}" webxml="WebContent/WEB-INF/web.xml">
+			<fileset dir="WebContent"/>
+			<lib dir="WebContent/WEB-INF/lib"/>
+			<classes dir="build/classes"/>
+		</war>
+		<copy todir="${appserver.home}" overwrite="false">
+		  <fileset dir="dist"/>
+		</copy>
+	</target>
+	
+	
+	<!-- ============================================================ -->
+	<!-- 						  Tomcat tasks 						  -->
+	<!-- ============================================================ -->
+	
+	<target name="deploy" description="Copy war to Tomcat">
+		<copy todir="${appserver.webapps}" overwrite="true">
+			<fileset dir="dist"/>
+		</copy>
+	</target>
+
+	<target name="reload" description="Reload application in Tomcat">
+	   <reload url="${tomcat.manager.url}" 
+	   		   username="${tomcat.manager.username}"
+	      	   password="${tomcat.manager.password}" 
+	   		   path="/${tomcat.manager.service}"/>
+	</target>
+	
+	
+	<target name="clean">
+		<delete dir="dist" />
+		<delete dir="build" />
+	</target>
+	
+	<target name="build" description="Build war file and copy to tomcat">
+		<antcall target="init"/>
+		<antcall target="compile"/>
+		<antcall target="war"/>
+		<antcall target="deploy"/>
+	</target>
+	
+</project>
+
