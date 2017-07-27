@@ -1,3 +1,3 @@
 # hello-world
 Just a sample repository
-This isnthe master
+This is the master
